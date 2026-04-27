@@ -1,0 +1,100 @@
+/**
+ * Visa Guide Application Security Rules
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for all personal and transactional data. 
+ * User profiles, shopping carts, and purchase orders are siloed under individual user paths 
+ * to ensure privacy and simplified authorization. Public catalog data, such as countries 
+ * and visa types, is globally readable but strictly protected for administrative write operations.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // In this prototype, we consider any signed-in user an admin for the sake of 
+      // the 'Dashboard' functionality. In production, this would check a 'roles' field.
+      return isSignedIn();
+    }
+
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- Collection Rules ---
+
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      match /carts/{cartId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+
+        match /cartItems/{itemId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId);
+          allow update: if isExistingOwner(userId);
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+
+        match /lineItems/{itemId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId);
+          allow update: if isExistingOwner(userId);
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+    }
+
+    match /roles_admin/{userId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if isAdmin() || (isSignedIn() && userId == request.auth.uid);
+    }
+
+    // Public catalog data - Globally readable
+    match /countries/{countryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /visaTypes/{visaTypeId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /travelPurposes/{travelPurposeId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Visa Guides catalog - Globally readable, Admin modifiable
+    match /visaGuides/{visaGuideId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+  }
+}

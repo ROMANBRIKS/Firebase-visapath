@@ -1,0 +1,98 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information within the application.",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "createdAt"]
+    },
+    "VisaGuide": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VisaGuide",
+      "type": "object",
+      "description": "A premium, benefit-focused roadmap for a specific visa. Split into Public Pitch and Purchased Content.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "country": { "type": "string" },
+        "visaType": { "type": "string" },
+        "shortDescription": { "type": "string" },
+        "fullContent": { "type": "string", "description": "Compelling sales pitch focusing ONLY on value and benefits." },
+        "purchasedRoadmap": { "type": "string", "description": "The actual 'PDF' content. High-detail technical roadmap with forms, steps, and requirements." },
+        "price": { "type": "number" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "category": { "type": "string", "enum": ["Tourism", "Work", "Study", "Nomad", "Business"] },
+        "prerequisites": { "type": "array", "items": { "type": "string" } },
+        "tableOfContents": { "type": "array", "items": { "type": "string" } },
+        "countryIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "country", "visaType", "price", "category", "purchasedRoadmap", "createdAt"]
+    },
+    "DocumentChecklist": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DocumentChecklist",
+      "type": "object",
+      "description": "A personalized list of required documents for a visa application.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "visaType": { "type": "string" },
+        "country": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "status": { "type": "string", "enum": ["Required", "Conditional", "Action Needed"] }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "WatchlistItem": {
+      "title": "WatchlistItem",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "country": { "type": "string" },
+        "visaType": { "type": "string" },
+        "watchedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["password", "anonymous"]
+  },
+  "firestore": {
+    "/visaGuides/{visaGuideId}": {
+      "schema": { "$ref": "#/backend/entities/VisaGuide" },
+      "description": "Global collection of value-pitched visa roadmaps with hidden premium content."
+    },
+    "/users/{userId}/orders/{orderId}/lineItems/{itemId}": {
+      "schema": { "$ref": "#/backend/entities/VisaGuide" },
+      "description": "Purchased items for user access."
+    },
+    "/users/{userId}/checklists/{checklistId}": {
+      "schema": { "$ref": "#/backend/entities/DocumentChecklist" },
+      "description": "Personalized AI-generated document checklists for users."
+    },
+    "/users/{userId}/watchlist/{countryId}": {
+      "schema": { "$ref": "#/backend/entities/WatchlistItem" },
+      "description": "Destinations the user is watching for policy updates."
+    }
+  }
+}

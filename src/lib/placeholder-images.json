@@ -1,0 +1,40 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-travel",
+      "description": "A beautiful view of an international airport and city skyline.",
+      "imageUrl": "https://picsum.photos/seed/travel-hero/1200/600",
+      "imageHint": "international travel"
+    },
+    {
+      "id": "guide-usa",
+      "description": "United States visa guide illustration.",
+      "imageUrl": "https://picsum.photos/seed/usa-visa/600/400",
+      "imageHint": "USA travel"
+    },
+    {
+      "id": "guide-europe",
+      "description": "Schengen visa guide illustration.",
+      "imageUrl": "https://picsum.photos/seed/europe-visa/600/400",
+      "imageHint": "Europe travel"
+    },
+    {
+      "id": "guide-asia",
+      "description": "Digital nomad visa guide illustration.",
+      "imageUrl": "https://picsum.photos/seed/asia-visa/600/400",
+      "imageHint": "Asia travel"
+    },
+    {
+      "id": "guide-canada",
+      "description": "Canada work permit guide illustration.",
+      "imageUrl": "https://picsum.photos/seed/canada-visa/600/400",
+      "imageHint": "Canada travel"
+    },
+    {
+      "id": "support-hero",
+      "description": "Customer support illustration.",
+      "imageUrl": "https://picsum.photos/seed/support-center/800/600",
+      "imageHint": "customer support"
+    }
+  ]
+}
